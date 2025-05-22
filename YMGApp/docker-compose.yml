@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/personeldb
+    networks:
+      - appnet
+
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: personeldb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - appnet
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8282:80"  # ← 8282 dış port, nginx'in 80 portuna yönlendirildi
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+volumes:
+  postgres-data:
+
+networks:
+  appnet:
